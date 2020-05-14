@@ -20,7 +20,7 @@ frontal_cascade = cv2.CascadeClassifier('./haar/coches.xml')
 
 def comprobarmatricula(date_image):
 
-
+    trozosMatricula = [];
     for i in date_image:
         im = i[0]
         imc = i[1]
@@ -31,26 +31,28 @@ def comprobarmatricula(date_image):
         if imagenP is not ():
             for (x, y, w, h) in imagenP:
                 # Recorto la matricula
-                imagenrecortadagris = im[y: (y + h), x: (x + w)]
-                imagenrecortadanormal = imc[y: (y + h), x: (x + w)]
-                # https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
+                imagen_GrisRecortada = im[y: (y + h), x: (x + w)]
 
-                ret, th3 = cv2.threshold(imagenrecortadagris, 0, 255, cv2.THRESH_OTSU)
+                # https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
+                ret, th3 = cv2.threshold(imagen_GrisRecortada, 0, 255, cv2.THRESH_OTSU)
                 # https://www.programcreek.com/python/example/89437/cv2.boundingRect
                 contours, hierarchy = cv2.findContours(th3, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-                # https://stackoverflow.com/questions/46971769/how-to-extract-only-characters-from-image
-                sorted_ctrs = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[0])
-                # contours, hierarchy = cv2.findContours(th3,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-                for cor in sorted_ctrs:
+                contornos = []
+                for cor in contours:
 
                     # Sacamos coordenadas de contorno
                     a, b, c, d = cv2.boundingRect(cor)
 
                     if d > c and c > 3 and d > 10:
-                        cv2.rectangle(imagenrecortadanormal, (a, b), (a + c, b + d), (200, 105, 0), 2)
+                        contornos.append(cor)
+                        #cv2.rectangle(imagenrecortadanormal, (a, b), (a + c, b + d), (200, 105, 0), 2) Codigo usado para comprobar si detectaba los numeros correctamente
 
-                cv2.imshow("prueba", imc)
-                cv2.waitKey()
+                trozosMatricula.append([i[1], imagen_GrisRecortada, contornos, [x,y,w,h]]) #Imagen original, imagen recortada (Matricula),
+                # contornos de los numeros y [x,y,w,h] -> posiciones del recorte de la matricula
+
+                #cv2.imshow("prueba", imc) Codigo usado para comprobar si detectaba los numeros correctamente
+                #cv2.waitKey() Codigo usado para comprobar si detectaba los numeros correctamente
+
         else:
             contorno = []
             imagenPP = frontal_cascade.detectMultiScale(im, 1.1, 11)  # 1parametro imagen
@@ -108,6 +110,8 @@ def comprobarmatricula(date_image):
             cv2.imshow("prueba", imc)
             cv2.waitKey()
 
+        return trozosMatricula
+
 
 
 def cargar_imagen(date_image):
@@ -121,7 +125,7 @@ def cargar_imagen(date_image):
 
 def main():
     cargar_imagen(imagenes)
-    comprobarmatricula(imagenes)
+    informacion = comprobarmatricula(imagenes)
 
 
 if __name__ == "__main__":
