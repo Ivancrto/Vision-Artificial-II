@@ -128,7 +128,7 @@ def cargar_imagen(date_image):
 
 def main():
     cargar_imagen(imagenes)
-    comprobarmatricula(imagenes)
+    informacion = comprobarmatricula(imagenes)
 
 
 if __name__ == "__main__":
