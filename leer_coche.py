@@ -62,9 +62,8 @@ def comprobarmatricula(date_image):
                 data_y = np.array([])
                 recortar = im[y: (y + h), x: (x + w)]
                 recortarNormal = imc[y: (y + h), x: (x + w)]
-                th3 = cv2.adaptiveThreshold(recortar, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, \
-                                            cv2.cv2.THRESH_BINARY_INV, 19, 2)
-                # cv2.THRESH_BINARY   o cv2.THRESH_BINARY_INV
+                th3 = cv2.adaptiveThreshold(recortar,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,21,15)
+
                 cv2.imshow("pruebath", th3)
                 cv2.waitKey()
                 # https://www.programcreek.com/python/example/89437/cv2.boundingRect
@@ -74,7 +73,7 @@ def comprobarmatricula(date_image):
                 sorted_ctrs = sorted(contours, key=lambda ctr: cv2.boundingRect(ctr)[0])
 
                 # contours, hierarchy = cv2.findContours(th3,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-
+                contornos =[]
                 for cor in sorted_ctrs:
                     # get the bounding rect
                     a, b, c, d = cv2.boundingRect(cor)
@@ -85,7 +84,10 @@ def comprobarmatricula(date_image):
                         data_y = np.append(data_y, float(b))
                         contorno.append([a, b, c, d])
                         cv2.rectangle(recortarNormal, (a, b), (a + c, b + d), (200, 105, 0), 2)
-
+                        contornos.append(cor)
+                print(len(contorno))
+                cv2.imshow("prueba", recortarNormal)
+                cv2.waitKey()
             if data_y.shape[0] != 0:
                 data_x = data_x.reshape((data_x.shape[0], 1))
                 ransac = linear_model.RANSACRegressor()
@@ -109,8 +111,9 @@ def comprobarmatricula(date_image):
 
             cv2.imshow("prueba", imc)
             cv2.waitKey()
+    return trozosMatricula
 
-        return trozosMatricula
+
 
 
 
@@ -125,7 +128,7 @@ def cargar_imagen(date_image):
 
 def main():
     cargar_imagen(imagenes)
-    informacion = comprobarmatricula(imagenes)
+    comprobarmatricula(imagenes)
 
 
 if __name__ == "__main__":
